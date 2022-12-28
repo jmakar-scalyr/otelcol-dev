@@ -1,0 +1,32 @@
+{
+  "resourceLogs": [
+    {
+      "scopeLogs": [
+        {
+          "logRecords": [
+            {
+              "timeUnixNano": "1581452773000000789",
+              "body": {
+                "stringValue": "This is a log message"
+              },
+              "attributes": [
+                {
+                  "key": "app",
+                  "value": {
+                    "stringValue": "server"
+                  }
+                },
+                {
+                  "key": "instance_num",
+                  "value": {
+                    "intValue": "1"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

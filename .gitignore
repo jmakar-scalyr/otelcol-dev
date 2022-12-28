@@ -1,0 +1,6 @@
+ocb_*
+
+otelcol-dev/*.go
+otelcol-dev/go.mod
+otelcol-dev/go.sum
+otelcol-dev/otelcol-dev

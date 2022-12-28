@@ -1,0 +1,18 @@
+#!/bin/bash
+
+pushd $(dirname ${BASH_SOURCE[0]})/../datasetexporter >/dev/null
+
+# Check for lint warnings
+if [ $(go vet 2>&1 | wc -l) -gt 0 ]; then
+    echo 'run `go vet` and fix warnings'
+fi
+
+# Check files are formatted
+files=($(gofmt -l .))
+if [ ${#files[@]} -gt 0 ]; then
+    echo 'run `go fmt` to format:'
+    for file in ${files[@]}; do echo $file; done
+fi
+
+popd >/dev/null
+exit 0
