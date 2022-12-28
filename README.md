@@ -1,6 +1,7 @@
 # otelcol-dev
 OpenTelemetry collector development environment
 
+## Setup environment
 - Download ocb from https://github.com/open-telemetry/opentelemetry-collector/releases
   - `chmod +x ocb_...; xattr -d com.apple.quarantine ocb_...`
 - Create builder-config.yaml
@@ -85,3 +86,39 @@ OpenTelemetry collector development environment
     ```
   - Ref: https://github.com/open-telemetry/opentelemetry-specification/blob/main/experimental/serialization/json.md
     - Note some docs have not been updated: https://github.com/open-telemetry/opentelemetry-collector/blob/main/CHANGELOG.md#-breaking-changes--18
+
+## Add custom/development components
+- Create and populate a directory with the new component, eg ./datasetexporter
+  - Give the module an appropriate name and location
+    - Eg `go mod init github.com/jmakar-scalyr/otelcol-dev/datasetexporter`
+- In otelcol-dev, modify components.go to include the new component, eg:
+  - ```
+    $ diff -U2 components.go{.orig,}
+    --- components.go.orig
+    +++ components.go
+    @@ -12,4 +12,5 @@
+            batchprocessor "go.opentelemetry.io/collector/processor/batchprocessor"
+            otlpreceiver "go.opentelemetry.io/collector/receiver/otlpreceiver"
+    +       datasetexporter "github.com/jmakar-scalyr/otelcol-dev/datasetexporter"
+     )
+
+    @@ -33,4 +34,5 @@
+            factories.Exporters, err = exporter.MakeFactoryMap(
+                    loggingexporter.NewFactory(),
+    +               datasetexporter.NewFactory(),
+            )
+            if err != nil {
+    ```
+- In otelcol-dev, modify go.mod to include the new requirement and associate it with a local path, eg:
+  - ```
+    $ diff -U1 go.mod{.orig,}
+    --- go.mod.orig	2022-12-28 14:24:21.000000000 -0500
+    +++ go.mod	2022-12-28 14:24:17.000000000 -0500
+    @@ -6,2 +6,5 @@
+
+    +require "github.com/jmakar-scalyr/otelcol-dev/datasetexporter" v0.0.0
+    +replace "github.com/jmakar-scalyr/otelcol-dev/datasetexporter" v0.0.0 => "../datasetexporter"
+    +
+     require (
+    ```
+- Build a new version: `go build -o otelcol-dev`

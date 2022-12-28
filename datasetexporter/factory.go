@@ -5,7 +5,7 @@ import (
 
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/exporter"
-	"go.opentelemetry.io/collector/exporterhelper"
+	"go.opentelemetry.io/collector/exporter/exporterhelper"
 )
 
 func NewFactory() exporter.Factory {
@@ -19,18 +19,22 @@ func NewFactory() exporter.Factory {
 
 func createDefaultConfig() component.Config {
 	return &Config{
-		DataSetUrl: "https://app.scalyr.com/",
+		DatasetUrl: "https://app.scalyr.com/",
 	}
 }
 
 func createLogsExporter(ctx context.Context, set exporter.CreateSettings, config component.Config) (exporter.Logs, error) {
 	cfg := config.(*Config)
+	e, err := newDatasetExporter(cfg.ApiKey, cfg.DatasetUrl)
+	if err != nil {
+		return nil, err
+	}
 
-	// FIXME STOPPED
 	return exporterhelper.NewLogsExporter(
 		ctx,
 		set,
 		cfg,
-
+		e.consumeLogs,
+		// FIXME What options (retry, etc) should be used?
 	)
 }

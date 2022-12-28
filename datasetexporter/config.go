@@ -8,7 +8,7 @@ import (
 
 type Config struct {
 	ApiKey     string `mapstructure:"apikey"`
-	DataSetUrl string `mapstructure:"dataseturl"`
+	DatasetUrl string `mapstructure:"dataseturl"`
 }
 
 func (c *Config) Unmarshal(conf *confmap.Conf) error {
@@ -22,8 +22,11 @@ func (c *Config) Validate() error {
 	if c.ApiKey == "" {
 		return errors.New("apikey is required")
 	}
-	if c.DataSetUrl == "" {
+	if c.DatasetUrl == "" {
 		return errors.New("dataseturl is required")
 	}
+
+	// FIXME Make an http request to validate both apikey and dataseturl
+	
 	return nil
 }
