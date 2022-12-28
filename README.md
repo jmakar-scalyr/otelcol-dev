@@ -126,7 +126,7 @@ OpenTelemetry collector development environment
     $ diff -U3 otel-config.yaml{.orig,}
     --- otel-config.yaml.orig
     +++ otel-config.yaml
-    @@ -10,6 +10,9 @@
+    @@ -10,10 +10,13 @@
      exporters:
        logging:
          loglevel: debug
@@ -136,5 +136,11 @@ OpenTelemetry collector development environment
 
      service:
        pipelines:
+         logs:
+           receivers: [otlp]
+           processors: [batch]
+    -      exporters: [logging]
+    +      exporters: [logging, dataset]
     ```
 - Build a new version with: `go get -u github.com/jmakar-scalyr/otelcol-dev/datasetexporter; go build -o otelcol-dev`
+  - Can test using curl and sample log from the previous section

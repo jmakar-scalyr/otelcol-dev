@@ -3,6 +3,7 @@ package datasetexporter
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"go.opentelemetry.io/collector/pdata/plog"
 )
@@ -31,6 +32,6 @@ func (e *datasetExporter) consumeLogs(ctx context.Context, ld plog.Logs) error {
 	}
 
 	// FIXME STOPPED
-	fmt.Printf("%s\n", string(buf))
+	fmt.Fprintf(os.Stderr, "jmakar-scalyr: %s\n", string(buf))
 	return nil
 }
