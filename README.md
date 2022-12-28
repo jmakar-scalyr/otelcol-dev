@@ -92,7 +92,7 @@ OpenTelemetry collector development environment
   - Give the module an appropriate name and location
     - Eg `go mod init github.com/jmakar-scalyr/otelcol-dev/datasetexporter`
 - In otelcol-dev, modify components.go to include the new component, eg:
-  - ```
+  - ```sh
     $ diff -U2 components.go{.orig,}
     --- components.go.orig
     +++ components.go
@@ -110,10 +110,10 @@ OpenTelemetry collector development environment
             if err != nil {
     ```
 - In otelcol-dev, modify go.mod to include the new requirement and associate it with a local path, eg:
-  - ```
+  - ```sh
     $ diff -U1 go.mod{.orig,}
-    --- go.mod.orig	2022-12-28 14:24:21.000000000 -0500
-    +++ go.mod	2022-12-28 14:24:17.000000000 -0500
+    --- go.mod.orig
+    +++ go.mod
     @@ -6,2 +6,5 @@
 
     +require "github.com/jmakar-scalyr/otelcol-dev/datasetexporter" v0.0.0
@@ -121,4 +121,20 @@ OpenTelemetry collector development environment
     +
      require (
     ```
-- Build a new version: `go build -o otelcol-dev`
+- In otelcol-dev, modify otel-config.yaml to include the new component, eg:
+  - ```sh
+    $ diff -U3 otel-config.yaml{.orig,}
+    --- otel-config.yaml.orig
+    +++ otel-config.yaml
+    @@ -10,6 +10,9 @@
+     exporters:
+       logging:
+         loglevel: debug
+    +  dataset:
+    +    apikey: <elided>
+    +    dataseturl: https://app-qatesting.scalyr.com/
+
+     service:
+       pipelines:
+    ```
+- Build a new version with: `go get -u github.com/jmakar-scalyr/otelcol-dev/datasetexporter; go build -o otelcol-dev`
