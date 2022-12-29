@@ -19,7 +19,7 @@ func NewFactory() exporter.Factory {
 
 func createDefaultConfig() component.Config {
 	return &Config{
-		DatasetUrl: "https://app.scalyr.com/",
+		DatasetUrl: "https://app.scalyr.com",
 	}
 }
 
@@ -35,6 +35,8 @@ func createLogsExporter(ctx context.Context, set exporter.CreateSettings, config
 		set,
 		cfg,
 		e.consumeLogs,
-		// FIXME What options (retry, etc) should be used?
+		// TODO What non-default options (retry, etc) should be used?
+		//      The default is no queue, no retries and a timeout of five seconds
+		//      Ref: https://pkg.go.dev/go.opentelemetry.io/collector/exporter/exporterhelper#Option
 	)
 }

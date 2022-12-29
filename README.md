@@ -132,7 +132,7 @@ OpenTelemetry collector development environment
          loglevel: debug
     +  dataset:
     +    apikey: <elided>
-    +    dataseturl: https://app-qatesting.scalyr.com/
+    +    dataseturl: https://app-qatesting.scalyr.com
 
      service:
        pipelines:
