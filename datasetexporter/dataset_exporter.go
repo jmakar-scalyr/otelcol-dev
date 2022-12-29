@@ -26,11 +26,11 @@ type datasetExporter struct {
 
 func newDatasetExporter(apiKey, datasetUrl string) (*datasetExporter, error) {
 	return &datasetExporter{
-		apiKey: apiKey,
+		apiKey:     apiKey,
 		datasetUrl: datasetUrl,
 
-		client: &http.Client{ Timeout: time.Second * 60 },
-		limiter: rate.NewLimiter(100 * rate.Every(1 * time.Minute), 100), // 100 requests / minute
+		client:  &http.Client{Timeout: time.Second * 60},
+		limiter: rate.NewLimiter(100*rate.Every(1*time.Minute), 100), // 100 requests / minute
 
 		// TODO Use goroutines to support multiple sessions
 		session: uuid.New().String(),
@@ -97,7 +97,7 @@ func (e *datasetExporter) consumeLogs(ctx context.Context, ld plog.Logs) error {
 	sendBuffer := func(buf *bytes.Buffer) error {
 		buf.WriteString(bufferSuffix)
 
-		request, err := e.newRequest(ctx, "POST", e.datasetUrl + "/api/addEvents", bytes.NewBuffer(buf.Bytes()))
+		request, err := e.newRequest(ctx, "POST", e.datasetUrl+"/api/addEvents", bytes.NewBuffer(buf.Bytes()))
 		if err != nil {
 			return err
 		}
@@ -116,7 +116,7 @@ func (e *datasetExporter) consumeLogs(ctx context.Context, ld plog.Logs) error {
 
 	batchBuffer := newBuffer()
 
-	resourceLogs := ld.ResourceLogs();
+	resourceLogs := ld.ResourceLogs()
 	for i := 0; i < resourceLogs.Len(); i++ {
 		scopeLogs := resourceLogs.At(i).ScopeLogs()
 		for j := 0; j < scopeLogs.Len(); j++ {
@@ -128,11 +128,11 @@ func (e *datasetExporter) consumeLogs(ctx context.Context, ld plog.Logs) error {
 				if err != nil {
 					return err
 				}
-				if len(logBuffer) > MAX_BUFFER_SIZE - (len(bufferPrefix) + len(bufferSuffix)) {
+				if len(logBuffer) > MAX_BUFFER_SIZE-(len(bufferPrefix)+len(bufferSuffix)) {
 					return fmt.Errorf("event too long (%d bytes)", len(logBuffer))
 				}
 
-				if len(logBuffer) + batchBuffer.Len() > MAX_BUFFER_SIZE - len(bufferSuffix) {
+				if len(logBuffer)+batchBuffer.Len() > MAX_BUFFER_SIZE-len(bufferSuffix) {
 					if err := sendBuffer(batchBuffer); err != nil {
 						return err
 					}
@@ -162,9 +162,9 @@ func (e *datasetExporter) newRequest(ctx context.Context, method, url string, bo
 		return nil, err
 	}
 
-	request.Header.Set("Authorization", "Bearer " + e.apiKey)
+	request.Header.Set("Authorization", "Bearer "+e.apiKey)
 	request.Header.Set("Content-Type", "application/json")
-	request.Header.Set("User-Agent", "otel-datasetexporter/" + VERSION)
+	request.Header.Set("User-Agent", "otel-datasetexporter/"+VERSION)
 
 	return request, nil
 }
