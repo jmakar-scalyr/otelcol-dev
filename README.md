@@ -1,10 +1,18 @@
 # otelcol-dev
 OpenTelemetry collector development environment
 
+Documentation: https://github.com/scalyr/scalyr-webapp/pull/5151
+
 ## Setup environment
 - Download ocb from https://github.com/open-telemetry/opentelemetry-collector/releases
-  - `chmod +x ocb_...; xattr -d com.apple.quarantine ocb_...`
-- Create builder-config.yaml
+  - ```sh
+    mv ~/Downloads/ocb_* ocb;
+    chmod +x ocb;
+    xattr -d com.apple.quarantine ocb
+    ```
+  - validate it - `./ocb help`
+
+- Create `builder-config.yaml`
   - ```yaml
     dist:
       name: otelcol-dev
@@ -23,10 +31,13 @@ OpenTelemetry collector development environment
         gomod: go.opentelemetry.io/collector v0.64.0
     ```
   - Ref: https://opentelemetry.io/docs/collector/custom-collector/#step-2---create-a-builder-manifest-file
-- ./ocb_... --config builder-config.yaml
-  - This creates otelcol-dev/ with source and binary
-- Create otelcol-dev/otel-config.yaml
-  - ```yaml
+- Generate and Build
+  - `./ocb --config builder-config.yaml`
+  - This creates `otelcol-dev/` with source and binary
+- Dive into newly created directory - `cd otelcol-dev/`
+- Create config file - `otel-config.yaml`
+  - ```sh
+    cat > otel-config.yaml <<- EOM
     receivers:
       otlp:
         protocols:
@@ -46,43 +57,50 @@ OpenTelemetry collector development environment
           receivers: [otlp]
           processors: [batch]
           exporters: [logging]
-    ```
+    EOM
+
   - Ref: https://opentelemetry.io/docs/collector/configuration/
-- Launch with: `cd otelcol-dev; otelcol-dev --config otel-config.yaml`
-- Test with: `curl -i http://127.0.0.1:4318/v1/logs -H 'Content-Type: application/json' -d @test-log.json`
-  - ```json
+- Launch:
+  - ```bash
+    ./otelcol-dev --config otel-config.yaml
+
+- Test with curl:
+  - ```sh
+     curl -i http://127.0.0.1:4318/v1/logs -H \
+      'Content-Type: application/json' \
+      -d '
     {
-      "resourceLogs": [
-        {
-          "scopeLogs": [
-            {
-              "logRecords": [
-                {
-                  "timeUnixNano": "1581452773000000789",
-                  "body": {
-                    "stringValue": "This is a log message"
-                  },
-                  "attributes": [
-                    { 
-                      "key": "app",
-                      "value": {
-                        "stringValue": "server"
-                      }
-                    },
-                    {
-                      "key": "instance_num",
-                      "value": {
-                        "intValue": "1"
-                      }
+    "resourceLogs": [
+      {
+        "scopeLogs": [
+          {
+            "logRecords": [
+              {
+                "timeUnixNano": "1581452773000000789",
+                "body": {
+                  "stringValue": "This is a log message"
+                },
+                "attributes": [
+                  {
+                    "key": "app",
+                    "value": {
+                      "stringValue": "server"
                     }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    }
+                  },
+                  {
+                    "key": "instance_num",
+                    "value": {
+                      "intValue": "1"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+    }'
     ```
   - Ref: https://github.com/open-telemetry/opentelemetry-specification/blob/main/experimental/serialization/json.md
     - Note some docs have not been updated: https://github.com/open-telemetry/opentelemetry-collector/blob/main/CHANGELOG.md#-breaking-changes--18
@@ -109,7 +127,8 @@ OpenTelemetry collector development environment
             )
             if err != nil {
     ```
-- In otelcol-dev, modify go.mod to include the new requirement and associate it with a local path, eg:
+  - If the module already existed and you see underlined import, then use `go get .`
+- In `otelcol-dev`, modify `go.mod` to include the new requirement and associate it with a local path, eg:
   - ```sh
     $ diff -U1 go.mod{.orig,}
     --- go.mod.orig
@@ -121,7 +140,8 @@ OpenTelemetry collector development environment
     +
      require (
     ```
-- In otelcol-dev, modify otel-config.yaml to include the new component, eg:
+  - Line with `require` was generated automatically, I have just added `replace` line with matching version.
+- In `otelcol-dev`, modify `otel-config.yaml` to include the new component, eg:
   - ```sh
     $ diff -U3 otel-config.yaml{.orig,}
     --- otel-config.yaml.orig
@@ -142,5 +162,11 @@ OpenTelemetry collector development environment
     -      exporters: [logging]
     +      exporters: [logging, dataset]
     ```
-- Build a new version with: `go get -u github.com/jmakar-scalyr/otelcol-dev/datasetexporter; go build -o otelcol-dev`
-  - Can test using curl and sample log from the previous section
+- Install `dataset` dependencies:
+  - ```sh
+    (cd ../dataset; go get .)
+- Build a new version with:
+  - ```sh
+    go get -u github.com/jmakar-scalyr/otelcol-dev/datasetexporter;
+    go build -o otelcol-dev
+  - You can run and test using commands from the previous section
